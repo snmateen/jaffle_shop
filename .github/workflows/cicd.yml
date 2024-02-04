@@ -52,14 +52,17 @@ jobs:
       - name: Step 06 - Create artifact
         id: step-06-create-artifact
         run: |
-          tar -czvf target_artifact.tar.gz target/*.json target/*.html
-          ls -ltr target_artifact.tar.gz
+          # tar -czvf target_artifact.tar.gz target/*.json target/*.html
+          # ls -ltr target_artifact.tar.gz
+          # comment the above 2 lines since next step creates the tar
+          mkdir docs
+          cp -pv target/*.html target/*.json docs
 
       - name: Step 07 - Upload artifact
         id: step-07-upload-artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: target_artifact.tar.gz
+          path: docs
 
   # Deploy job
   deploy:

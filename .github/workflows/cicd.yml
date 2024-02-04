@@ -43,3 +43,50 @@ jobs:
         run: |
           dbt deps
           dbt build
+
+  # Publish job
+  publish:
+    runs-on: ubuntu-latest
+    
+    needs: build
+    
+    steps:
+      
+      - name: Step 01 - Docs generate
+        id: step-01-docs-generate
+        run: | 
+          dbt docs generate
+
+      - name: Step 02 - Create artifact
+        id: step-02-create-artifact
+        run: |
+          tar -czvf target_artifact.tar.gz target/*.json target/*.html
+          ls -ltr target_artifact.tar.gz
+
+      - name: Step 03 - Upload artifact
+        id: step-03-upload-artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: target_artifact.tar.gz
+
+  # Deploy job
+  deploy:
+    # Add a dependency to the build job
+    needs: publish
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action

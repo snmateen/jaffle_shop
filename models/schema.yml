@@ -4,6 +4,14 @@ models:
   - name: customers
     description: This table has basic information about a customer, as well as some derived facts based on a customer's orders
 
+    config:
+      materialized: view
+      tags: ['general', 'mart']
+    
+    meta:
+      owner: "@syed"
+      model_maturity: in dev
+
     columns:
       - name: customer_id
         description: This is a unique identifier for a customer
@@ -55,6 +63,8 @@ models:
         tests:
           - accepted_values:
               values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+              config:
+                severity: warn
 
       - name: amount
         description: Total amount (AUD) of the order
